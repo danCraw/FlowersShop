@@ -2,12 +2,11 @@ from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, MenuButton
 from aiogram.utils import executor
-from fastapi import FastAPI
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from constants import START_TEXT, SELECT_TEXT
 from mimesis import Person, Text
-from os import environ
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f"postgresql+psycopg2://{'postgres'}:{'postgres'}@{'localhost'}:5432/{'flowers_shop'}"
@@ -18,9 +17,7 @@ DB_USER = 'postgres'
 DB_PASSWORD = 'postgres'
 DB_HOST = "localhost"
 DB_NAME = "special"
-SQLALCHEMY_DATABASE_URL = (
-    f"postgresql://{'postgres'}:{'postgres'}@{'localhost'}:5432/{'flowers_shop'}"
-)
+SQLALCHEMY_DATABASE_URL = (f"postgresql://{'postgres'}:{'postgres'}@{'localhost'}:5432/{'flowers_shop'}")
 
 # создаем объект database, который будет использоваться для выполнения запросов
 db = SQLAlchemy(app)
@@ -52,6 +49,10 @@ async def process_begin_command(message: types.Message):
 
 
 if __name__ == '__main__':
-    print('Запущен')
-    executor.start_polling(dp)
-    print('Остановлен')
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        app.run(debug=True)
+        print('Запущен')
+        executor.start_polling(dp)
+        print('Остановлен')
